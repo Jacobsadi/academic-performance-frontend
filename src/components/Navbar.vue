@@ -1,9 +1,17 @@
 <template>
   <nav class="navbar" role="navigation" aria-label="Main navigation">
-    <div class="navbar-title">Lecturer Panel</div>
+    <div class="navbar-title">
+      {{ role === 'student' ? 'Student Panel' : 'Lecturer Panel' }}
+    </div>
     <div class="navbar-links">
-      <router-link to="/lecturer/dashboard" class="nav-link">Dashboard</router-link>
-      <span class="separator">|</span>
+      <template v-if="role === 'lecturer'">
+        <router-link to="/lecturer/dashboard" class="nav-link">Dashboard</router-link>
+        <span class="separator">|</span>
+      </template>
+      <template v-else-if="role === 'student'">
+        <router-link to="/student/dashboard" class="nav-link">Dashboard</router-link>
+        <span class="separator">|</span>
+      </template>
       <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
     </div>
   </nav>
@@ -11,6 +19,14 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { defineProps } from 'vue'
+
+const props = defineProps({
+  role: {
+    type: String,
+    default: 'lecturer'
+  }
+})
 
 const router = useRouter()
 const logout = () => {
