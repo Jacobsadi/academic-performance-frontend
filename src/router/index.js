@@ -4,8 +4,6 @@ import CourseDetails from '../views/CourseDetails.vue';
 import ExportResults from '../views/ExportResults.vue';
 import LecturerDashboard from '../views/LecturerDashboard.vue';
 import LoginPage from '../views/LoginPage.vue';
-import StudentLoginPage from '../views/student/LoginPage.vue';
-import StudentDashboard from '../views/student/Dashboard.vue'
 
 const routes = [
   { path: '/', component: LoginPage },
@@ -13,9 +11,6 @@ const routes = [
   { path: '/lecturer/course/:id', component: CourseDetails, props: true },
   { path: '/lecturer/course/:id/analytics', component: CourseAnalytics, props: true },
   { path: '/lecturer/course/:id/export', component: ExportResults, props: true },
-
-  { path: '/student', component: StudentLoginPage},
-  { path: '/student/dashboard', component: StudentDashboard }
   
 ];
 
