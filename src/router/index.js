@@ -11,6 +11,7 @@ const routes = [
   { path: '/lecturer/course/:id', component: CourseDetails, props: true },
   { path: '/lecturer/course/:id/analytics', component: CourseAnalytics, props: true },
   { path: '/lecturer/course/:id/export', component: ExportResults, props: true },
+  
 ];
 
 const router = createRouter({

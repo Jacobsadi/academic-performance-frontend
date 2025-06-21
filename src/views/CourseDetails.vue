@@ -3,55 +3,97 @@
     <Navbar />
     <h2 class="title">Course Details - ID: {{ courseId }}</h2>
 
-    <section class="section">
-      <h3>Students</h3>
+    <!-- Enroll Student -->
+    <div class="card">
+      <h3>Enroll New Student</h3>
+      <div class="form-group">
+        <input v-model="newEnrollment.matric_no" placeholder="Student Matric No (e.g., S1001)" />
+        <button @click="enrollStudent">Enroll</button>
+      </div>
+    </div>
+
+    <!-- Student List -->
+    <div class="card">
+      <h3>Enrolled Students</h3>
       <ul>
         <li v-for="student in students" :key="student.id" class="student-item">
           {{ student.name }} ({{ student.matric_no }})
+          <button @click="deleteStudent(student.id)" class="delete-btn">Remove</button>
         </li>
       </ul>
-    </section>
+    </div>
 
-    <section class="section">
-      <h3>Add Component</h3>
+    <!-- Add Assessment Component -->
+    <div class="card">
+      <h3>Add Assessment Component</h3>
       <div class="form-group">
-        <input v-model="newComponent.name" placeholder="Component Name" />
-        <input v-model.number="newComponent.weight" placeholder="Weight" type="number" />
-        <input v-model.number="newComponent.max_mark" placeholder="Max Mark" type="number" />
-        <button @click="addComponent">Add</button>
+        <input v-model="newComponent.name" placeholder="Component Name (e.g., Quiz)" />
+        <input v-model.number="newComponent.weight" type="number" placeholder="Weight (%)" />
+        <input v-model.number="newComponent.max_mark" type="number" placeholder="Max Mark (e.g., 20)" />
+        <button @click="addComponent">Add Component</button>
       </div>
-    </section>
+    </div>
 
-    <section class="section" v-if="components.length">
-      <h3>Enter Marks</h3>
+    <!-- Marks Entry -->
+    <div class="card" v-if="components.length">
+      <h3>Continuous Assessment Marks</h3>
       <div v-for="component in components" :key="component.id" class="component-block">
-        <h4>{{ component.name }}</h4>
-        <div
-          v-if="marks[component.id]"
-          v-for="student in students"
-          :key="student.id"
-          class="mark-row"
-        >
-          <label>{{ student.name }}:</label>
-          <input type="number" v-model.number="marks[component.id][student.id]" />
-        </div>
+        <h4>{{ component.name }} ({{ component.weight }}%)</h4>
+        <table class="mark-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Mark (out of {{ component.max_mark }})</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="student in students" :key="student.id">
+              <td>{{ student.name }}</td>
+              <td><input type="number" v-model.number="marks[component.id][student.id]" /></td>
+            </tr>
+          </tbody>
+        </table>
         <button @click="submitMarks(component.id)">Submit Marks</button>
       </div>
-    </section>
+    </div>
 
-    <section class="section">
-      <h3>Final Exam</h3>
-      <div v-for="student in students" :key="student.id" class="mark-row">
-        <label>{{ student.name }}:</label>
-        <input type="number" v-model.number="finalMarks[student.id]" />
-      </div>
+    <!-- Final Exam -->
+    <div class="card">
+      <h3>Final Exam Marks (30%)</h3>
+      <table class="mark-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Final Mark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="student in students" :key="student.id">
+            <td>{{ student.name }}</td>
+            <td><input type="number" v-model.number="finalMarks[student.id]" /></td>
+          </tr>
+        </tbody>
+      </table>
       <button @click="submitFinalExam">Submit Final Exam</button>
-    </section>
+    </div>
+
+    <!-- Final Total Calculation -->
+    <div class="card">
+      <h3>Total Score Calculation</h3>
+      <ul>
+        <li v-for="student in students" :key="student.id">
+          {{ student.name }} —
+          CA: {{ caScores[student.id]?.toFixed(2) ?? 0 }} +
+          Final: {{ finalMarks[student.id] || 0 }} (× 0.3) =
+          <strong>{{ calculateTotal(student.id).toFixed(2) }}%</strong>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 
@@ -61,39 +103,49 @@ const courseId = route.params.id
 const students = ref([])
 const components = ref([])
 const newComponent = ref({ name: '', weight: 0, max_mark: 100 })
+const newEnrollment = ref({ matric_no: '' })
 const marks = ref({})
 const finalMarks = ref({})
+const caScores = ref({})
 
 onMounted(async () => {
-  const studentRes = await fetch(`http://localhost:8085/lecturer/course/${courseId}/students`)
-  students.value = await studentRes.json()
-  students.value.forEach(student => {
-    finalMarks.value[student.id] = 0
-  })
+  await fetchStudents()
+  await fetchComponents()
+  await fetchFinalExamMarks()
+  computeCA()
+})
 
-  const compRes = await fetch(`http://localhost:8085/lecturer/course/${courseId}/components`)
-  components.value = await compRes.json()
+async function fetchStudents() {
+  const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/students`)
+  students.value = await res.json()
+  students.value.forEach(s => (finalMarks.value[s.id] = 0))
+}
 
-  for (const component of components.value) {
-    marks.value[component.id] = {}
-    const markRes = await fetch(`http://localhost:8085/lecturer/component/${component.id}/marks`)
-    const markData = await markRes.json()
-    markData.forEach(entry => {
-      marks.value[component.id][entry.student_id] = entry.mark_obtained
+async function fetchComponents() {
+  const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/components`)
+  components.value = await res.json()
+
+  for (const comp of components.value) {
+    marks.value[comp.id] = {}
+    const res = await fetch(`http://localhost:8085/lecturer/component/${comp.id}/marks`)
+    const data = await res.json()
+    data.forEach(entry => {
+      marks.value[comp.id][entry.student_id] = entry.mark_obtained
     })
-    students.value.forEach(student => {
-      if (marks.value[component.id][student.id] === undefined) {
-        marks.value[component.id][student.id] = 0
-      }
+
+    students.value.forEach(s => {
+      if (marks.value[comp.id][s.id] === undefined) marks.value[comp.id][s.id] = 0
     })
   }
+}
 
-  const finalRes = await fetch(`http://localhost:8085/lecturer/course/${courseId}/final-exam`)
-  const finalData = await finalRes.json()
-  finalData.forEach(entry => {
+async function fetchFinalExamMarks() {
+  const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/final-exam`)
+  const data = await res.json()
+  data.forEach(entry => {
     finalMarks.value[entry.student_id] = entry.mark
   })
-})
+}
 
 const addComponent = async () => {
   const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/component`, {
@@ -101,14 +153,11 @@ const addComponent = async () => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newComponent.value)
   })
-
   if (res.ok) {
     const comp = await res.json()
     components.value.push({ ...newComponent.value, id: comp.id })
     marks.value[comp.id] = {}
-    students.value.forEach(s => {
-      marks.value[comp.id][s.id] = 0
-    })
+    students.value.forEach(s => (marks.value[comp.id][s.id] = 0))
     newComponent.value = { name: '', weight: 0, max_mark: 100 }
   }
 }
@@ -124,6 +173,7 @@ const submitMarks = async (componentId) => {
       })
     })
   }
+  computeCA()
   alert('Marks submitted!')
 }
 
@@ -140,11 +190,56 @@ const submitFinalExam = async () => {
   }
   alert('Final exam marks submitted!')
 }
+
+const enrollStudent = async () => {
+  const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/enroll`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ matric_no: newEnrollment.value.matric_no })
+  })
+
+  if (res.ok) {
+    alert('Student enrolled!')
+    newEnrollment.value.matric_no = ''
+    await fetchStudents()
+  } else {
+    const error = await res.json()
+    alert(error.error || 'Enrollment failed.')
+  }
+}
+
+const deleteStudent = async (studentId) => {
+  const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/student/${studentId}`, {
+    method: 'DELETE'
+  })
+  if (res.ok) {
+    alert('Student removed!')
+    await fetchStudents()
+  }
+}
+
+function computeCA() {
+  caScores.value = {}
+  for (const student of students.value) {
+    let total = 0
+    for (const comp of components.value) {
+      const obtained = marks.value[comp.id]?.[student.id] || 0
+      total += (obtained / comp.max_mark) * comp.weight
+    }
+    caScores.value[student.id] = total
+  }
+}
+
+function calculateTotal(studentId) {
+  const ca = caScores.value[studentId] || 0
+  const final = finalMarks.value[studentId] || 0
+  return ca + final * 0.3
+}
 </script>
 
 <style scoped>
 .container {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 2rem;
   font-family: Arial, sans-serif;
@@ -156,16 +251,12 @@ const submitFinalExam = async () => {
   color: #2c3e50;
 }
 
-.section {
+.card {
   margin-bottom: 30px;
-  padding: 15px;
-  background-color: #f9f9f9;
+  padding: 20px;
+  background: #fdfdfd;
   border: 1px solid #ddd;
-  border-radius: 6px;
-}
-
-.student-item {
-  margin: 5px 0;
+  border-radius: 8px;
 }
 
 .form-group {
@@ -196,18 +287,21 @@ button:hover {
   background-color: #2980b9;
 }
 
-.component-block {
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #ffffff;
+.delete-btn {
+  margin-left: 10px;
+  background-color: crimson;
 }
 
-.mark-row {
-  margin: 5px 0;
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.mark-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.mark-table th,
+.mark-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-align: left;
 }
 </style>
