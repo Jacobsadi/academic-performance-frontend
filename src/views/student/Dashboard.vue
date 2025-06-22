@@ -2,7 +2,7 @@
   <div class="dashboard">
     <Navbar role="student" />
     <div class="container">
-      <h1 class="page-title">Welcome, Student!</h1>
+      <h1 class="page-title">Welcome, {{ studentName }}!</h1>
       <div class="section">
         <h2 class="section-title">Your Courses</h2>
         <table class="course-table" v-if="!loading && courses.length">
@@ -39,13 +39,15 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const studentId = ref(null)
+const studentName = ref('Student')
 const courses = ref([])
 const error = ref('')
 const loading = ref(true)
 
 onMounted(() => {
-  // Get student ID from localStorage
+  // Get student ID and name from localStorage
   studentId.value = localStorage.getItem('studentId')
+  studentName.value = localStorage.getItem('studentName') || 'Student'
 
   if (!studentId.value) {
     // Not logged in, redirect to login
@@ -66,7 +68,8 @@ const fetchCoursesAndMarks = async () => {
       throw new Error(data.error || 'Failed to fetch courses')
     }
 
-    courses.value = data
+    studentName.value = data.name || 'Student'
+    courses.value = data.courses || []
   } catch (err) {
     error.value = err.message || 'Server not reachable'
   } finally {
