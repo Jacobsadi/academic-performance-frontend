@@ -1,27 +1,72 @@
 <template>
   <div class="dashboard">
-    <Navbar role="student"/>
+    <Navbar role="student" />
     <div class="container">
       <h1 class="page-title">Welcome, Student!</h1>
       <div class="section">
         <h2 class="section-title">Your Courses</h2>
-        <ul class="course-list">
-          <li>No courses enrolled yet.</li>
+        <ul class="course-list" v-if="!loading && courses.length">
+          <li v-for="course in courses" :key="course.course_id">
+            {{ course.code }} - {{ course.title }}<br />
+            CA: {{ course.ca_score ?? 0 }} | Final: {{ course.final_exam ?? 'N/A' }} | Total: {{ course.total_score ?? 0 }}
+          </li>
         </ul>
+        <p v-if="!loading && !courses.length" class="empty-message">No courses enrolled yet.</p>
+        <p v-if="error">{{ error }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import Navbar from '../../components/Navbar.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const studentId = ref(null)
+const courses = ref([])
+const error = ref('')
+const loading = ref(true)
+
+onMounted(() => {
+  // Get student ID from localStorage
+  studentId.value = localStorage.getItem('studentId')
+
+  if (!studentId.value) {
+    // Not logged in, redirect to login
+    router.push('/login/student')
+  } else {
+    fetchCoursesAndMarks()
+  }
+})
+
+const fetchCoursesAndMarks = async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    const res = await fetch(`http://localhost:8085/student/${studentId.value}/courses-marks`)
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to fetch courses')
+    }
+
+    courses.value = data
+  } catch (err) {
+    error.value = err.message || 'Server not reachable'
+  } finally {
+    loading.value = false
+  }
+}
 </script>
+
 
 <style scoped>
 .dashboard {
   background: #f4f6f9;
   min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 .container {
