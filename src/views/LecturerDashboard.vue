@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard">
-    <Navbar />
+    <Navbar role="lecturer"/>
     <div class="container">
       <h1 class="page-title">📚 Your Courses</h1>
 
@@ -53,7 +53,7 @@ const showError = ref(false)
 
 const fetchCourses = async () => {
   const lecturerId = localStorage.getItem('lecturerId')
-  const res = await fetch(`http://localhost:8085/lecturer/courses?lecturer_id=${lecturerId}`)
+  const res = await fetch(`http://localhost:8080/lecturer/courses?lecturer_id=${lecturerId}`)
   courses.value = await res.json()
 }
 
@@ -62,7 +62,7 @@ const createCourse = async () => {
   if (showError.value) return
 
   const lecturerId = localStorage.getItem('lecturerId')
-  const res = await fetch('http://localhost:8085/lecturer/course', {
+  const res = await fetch('http://localhost:8080/lecturer/course', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...newCourse.value, lecturer_id: lecturerId })
