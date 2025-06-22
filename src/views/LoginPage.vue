@@ -1,42 +1,80 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h2>Lecturer Login</h2>
-      <input v-model="email" placeholder="Email" type="email" />
-      <input v-model="password" type="password" placeholder="Password" />
+      <h2>{{ roleLabel }} Login</h2>
+
+      <!-- Student fields -->
+      <template v-if="role === 'student'">
+        <input v-model="matric" placeholder="Matric Number" type="text" />
+        <input v-model="pin" type="password" placeholder="Secure PIN" />
+      </template>
+
+      <!-- Lecturer fields -->
+      <template v-else-if="role === 'lecturer'">
+        <input v-model="email" placeholder="Email" type="email" />
+        <input v-model="password" type="password" placeholder="Password" />
+      </template>
+
       <button :disabled="loading" @click="login">
         {{ loading ? 'Logging in...' : 'Login' }}
       </button>
+
       <p v-if="error" class="error-message">{{ error }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
+const router = useRouter()
+const route = useRoute()
+
+// Detect role based on current path
+const role = ref(route.path.includes('lecturer') ? 'lecturer' : 'student')
+
+const matric = ref('')
+const pin = ref('')
 const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
-const router = useRouter()
+
+const roleLabel = computed(() =>
+  role.value === 'lecturer' ? 'Lecturer' : 'Student'
+)
+
+// Auto-redirect if already logged in
+onMounted(() => {
+  const key = role.value + 'Id'
+  if (localStorage.getItem(key)) {
+    router.push(`/${role.value}/dashboard`)
+  }
+})
 
 const login = async () => {
   error.value = ''
   loading.value = true
+
+  const url = role.value === 'lecturer' ? '/login-lecturer' : '/login-student'
+  const payload =
+    role.value === 'lecturer'
+      ? { email: email.value, password: password.value }
+      : { matric: matric.value, pin: pin.value }
+
   try {
-    const res = await fetch('http://localhost:8085/login', {
+    const res = await fetch(`http://localhost:8085${url}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.value, password: password.value })
+      body: JSON.stringify(payload)
     })
 
     const data = await res.json()
 
     if (res.ok) {
-      localStorage.setItem('lecturerId', data.user.id)
-      router.push('/lecturer/dashboard')
+      localStorage.setItem(`${role.value}Id`, data.user.id)
+      router.push(`/${role.value}/dashboard`)
     } else {
       error.value = data.error || 'Login failed'
     }
@@ -80,6 +118,7 @@ const login = async () => {
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
 .login-card input:focus {
