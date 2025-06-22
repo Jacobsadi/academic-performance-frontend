@@ -49,11 +49,20 @@
           <tbody>
             <tr v-for="student in students" :key="student.id">
               <td>{{ student.name }}</td>
-              <td><input type="number" v-model.number="marks[component.id][student.id]" /></td>
+              <td>
+                <input
+                  type="number"
+                  :value="marks[component.id]?.[student.id] ?? 0"
+                  @input="updateMark(component.id, student.id, $event.target.value)"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
-        <button @click="submitMarks(component.id)">Submit Marks</button>
+        <button @click="submitMarks(component.id)" :disabled="loadingComponent === component.id">
+          <span v-if="loadingComponent === component.id">Submitting...</span>
+          <span v-else>Submit Marks</span>
+        </button>
       </div>
     </div>
 
@@ -70,11 +79,16 @@
         <tbody>
           <tr v-for="student in students" :key="student.id">
             <td>{{ student.name }}</td>
-            <td><input type="number" v-model.number="finalMarks[student.id]" /></td>
+            <td>
+              <input type="number" v-model.number="finalMarks[student.id]" />
+            </td>
           </tr>
         </tbody>
       </table>
-      <button @click="submitFinalExam">Submit Final Exam</button>
+      <button @click="submitFinalExam" :disabled="loadingFinalExam">
+        <span v-if="loadingFinalExam">Submitting...</span>
+        <span v-else>Submit Final Exam</span>
+      </button>
     </div>
 
     <!-- Final Total Calculation -->
@@ -93,7 +107,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 
@@ -108,6 +122,9 @@ const marks = ref({})
 const finalMarks = ref({})
 const caScores = ref({})
 
+const loadingComponent = ref(null)
+const loadingFinalExam = ref(false)
+
 onMounted(async () => {
   await fetchStudents()
   await fetchComponents()
@@ -118,7 +135,9 @@ onMounted(async () => {
 async function fetchStudents() {
   const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/students`)
   students.value = await res.json()
-  students.value.forEach(s => (finalMarks.value[s.id] = 0))
+  students.value.forEach(s => {
+    if (finalMarks.value[s.id] === undefined) finalMarks.value[s.id] = 0
+  })
 }
 
 async function fetchComponents() {
@@ -126,9 +145,11 @@ async function fetchComponents() {
   components.value = await res.json()
 
   for (const comp of components.value) {
-    marks.value[comp.id] = {}
+    if (!marks.value[comp.id]) marks.value[comp.id] = {}
+
     const res = await fetch(`http://localhost:8085/lecturer/component/${comp.id}/marks`)
     const data = await res.json()
+
     data.forEach(entry => {
       marks.value[comp.id][entry.student_id] = entry.mark_obtained
     })
@@ -147,12 +168,18 @@ async function fetchFinalExamMarks() {
   })
 }
 
+function updateMark(componentId, studentId, value) {
+  if (!marks.value[componentId]) marks.value[componentId] = {}
+  marks.value[componentId][studentId] = Number(value)
+}
+
 const addComponent = async () => {
   const res = await fetch(`http://localhost:8085/lecturer/course/${courseId}/component`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(newComponent.value)
   })
+
   if (res.ok) {
     const comp = await res.json()
     components.value.push({ ...newComponent.value, id: comp.id })
@@ -163,8 +190,9 @@ const addComponent = async () => {
 }
 
 const submitMarks = async (componentId) => {
+  loadingComponent.value = componentId
   for (const studentId in marks.value[componentId]) {
-    await fetch(`http://localhost:8085/lecturer/component/${componentId}/mark`, {
+    await fetch(`http://localhost:8085/lecturer/component/${componentId}/mark-and-notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -174,12 +202,14 @@ const submitMarks = async (componentId) => {
     })
   }
   computeCA()
-  alert('Marks submitted!')
+  loadingComponent.value = null
+  alert('Marks submitted and emails sent!')
 }
 
 const submitFinalExam = async () => {
+  loadingFinalExam.value = true
   for (const studentId in finalMarks.value) {
-    await fetch(`http://localhost:8085/lecturer/course/${courseId}/final-exam`, {
+    await fetch(`http://localhost:8085/lecturer/course/${courseId}/final-exam-and-notify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -188,7 +218,8 @@ const submitFinalExam = async () => {
       })
     })
   }
-  alert('Final exam marks submitted!')
+  loadingFinalExam.value = false
+  alert('Final exam marks submitted and emails sent!')
 }
 
 const enrollStudent = async () => {
@@ -283,7 +314,12 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:disabled {
+  background-color: #999;
+  cursor: wait;
+}
+
+button:hover:not(:disabled) {
   background-color: #2980b9;
 }
 
