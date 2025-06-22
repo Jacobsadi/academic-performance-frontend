@@ -92,7 +92,7 @@ const login = async () => {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f0f4f8;
+  background: linear-gradient(120deg, #3498db 0%, #8e44ad 100%);
 }
 
 .login-card {
