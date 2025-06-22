@@ -5,12 +5,26 @@
       <h1 class="page-title">Welcome, Student!</h1>
       <div class="section">
         <h2 class="section-title">Your Courses</h2>
-        <ul class="course-list" v-if="!loading && courses.length">
-          <li v-for="course in courses" :key="course.course_id">
-            {{ course.code }} - {{ course.title }}<br />
-            CA: {{ course.ca_score ?? 0 }} | Final: {{ course.final_exam ?? 'N/A' }} | Total: {{ course.total_score ?? 0 }}
-          </li>
-        </ul>
+        <table class="course-table" v-if="!loading && courses.length">
+          <thead>
+            <tr>
+              <th>Course Code</th>
+              <th>Course Title</th>
+              <th>CA</th>
+              <th>Final</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="course in courses" :key="course.course_id">
+              <td>{{ course.code }}</td>
+              <td>{{ course.title }}</td>
+              <td>{{ course.ca_score ?? 0 }}</td>
+              <td>{{ course.final_exam ?? 'N/A' }}</td>
+              <td>{{ course.total_score ?? 0 }}</td>
+            </tr>
+          </tbody>
+        </table>
         <p v-if="!loading && !courses.length" class="empty-message">No courses enrolled yet.</p>
         <p v-if="error">{{ error }}</p>
       </div>
@@ -61,7 +75,6 @@ const fetchCoursesAndMarks = async () => {
 }
 </script>
 
-
 <style scoped>
 .dashboard {
   background: #f4f6f9;
@@ -92,58 +105,35 @@ const fetchCoursesAndMarks = async () => {
   color: #34495e;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.form-group {
-  flex: 1;
-  min-width: 240px;
-}
-
-input {
+.course-table {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #dcdfe3;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: 0.2s;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #fafbfc;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
 }
 
-input.error {
-  border-color: #e74c3c;
+.course-table th,
+.course-table td {
+  padding: 14px 12px;
+  text-align: left;
 }
 
-.error-message {
-  color: #e74c3c;
-  margin-top: -0.5rem;
-  font-size: 14px;
-}
-
-.btn.primary {
-  width: fit-content;
-  padding: 10px 18px;
-  background-color: #3498db;
-  border: none;
-  border-radius: 8px;
-  color: white;
+.course-table th {
+  background: #3498db;
+  color: #fff;
   font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: background-color 0.2s;
+  font-size: 16px;
 }
 
-.btn.primary:hover {
-  background-color: #2980b9;
+.course-table tr:nth-child(even) {
+  background: #f4f6f9;
+}
+
+.course-table tr:hover {
+  background: #eaf3fb;
 }
 
 .empty-message {
@@ -151,5 +141,11 @@ input.error {
   font-style: italic;
   color: #7f8c8d;
   margin-top: 2rem;
+}
+
+.error-message {
+  color: #e74c3c;
+  margin-top: -0.5rem;
+  font-size: 14px;
 }
 </style>

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import WelcomePage from '../views/WelcomePage.vue';
 import CourseAnalytics from '../views/CourseAnalytics.vue';
 import CourseDetails from '../views/CourseDetails.vue';
 import ExportResults from '../views/ExportResults.vue';
@@ -7,6 +8,7 @@ import LoginPage from '../views/LoginPage.vue';
 import StudentDashboard from '../views/student/Dashboard.vue'
 
 const routes = [
+  { path: '/', component: WelcomePage },
   { path: '/lecturer', component: LoginPage },
   { path: '/lecturer/dashboard', component: LecturerDashboard },
   { path: '/lecturer/course/:id', component: CourseDetails, props: true },
