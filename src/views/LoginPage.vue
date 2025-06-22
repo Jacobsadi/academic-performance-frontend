@@ -108,6 +108,7 @@ const login = async () => {
 .login-card h2 {
   margin-bottom: 24px;
   color: #2c3e50;
+  font-family: Roboto, sans-serif;
 }
 
 .login-card input {
