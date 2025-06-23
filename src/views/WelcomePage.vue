@@ -6,6 +6,7 @@
       <div class="button-group">
         <router-link to="/lecturer" class="role-btn lecturer-btn">Lecturer Login</router-link>
         <router-link to="/student" class="role-btn student-btn">Student Login</router-link>
+        <router-link to="/advisor" class="role-btn advisor-btn">Advisor Login</router-link>
       </div>
     </div>
   </div>
@@ -79,5 +80,12 @@ h1 {
 
 .student-btn:hover {
   background: #6c3483;
+}
+.advisor-btn {
+  background: #035c16;
+}
+
+.advisor-btn:hover {
+  background: #035c16;
 }
 </style>

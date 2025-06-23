@@ -6,6 +6,7 @@ import ExportResults from '../views/ExportResults.vue';
 import LecturerDashboard from '../views/LecturerDashboard.vue';
 import LoginPage from '../views/LoginPage.vue';
 import StudentDashboard from '../views/student/Dashboard.vue'
+import AdvisorDashboard from '../views/AdvisorDashboard.vue';
 
 const routes = [
   { path: '/', component: WelcomePage },
@@ -14,6 +15,9 @@ const routes = [
   { path: '/lecturer/course/:id', component: CourseDetails, props: true },
   { path: '/lecturer/course/:id/analytics', component: CourseAnalytics, props: true },
   { path: '/lecturer/course/:id/export', component: ExportResults, props: true },
+
+  { path: '/advisor/dashboard', component: AdvisorDashboard, meta: { requiresAuth: true, role: 'advisor' } }, 
+  { path: '/advisor', component: LoginPage},
 
   { path: '/student', component: LoginPage},
   { path: '/student/dashboard', component: StudentDashboard, meta: { requiresAuth: true, role: 'student' }}
@@ -37,8 +41,8 @@ router.beforeEach((to, from, next) => {
       next('/student')
     } else if (role === 'lecturer') {
       next('/lecturer')
-    } else {
-      next('/')
+    } else if (role === 'advisor') {
+      next('/advisor')
     }
   } else {
     next()

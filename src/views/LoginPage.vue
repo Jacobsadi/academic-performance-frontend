@@ -9,8 +9,8 @@
         <input v-model="pin" type="password" placeholder="Secure PIN" />
       </template>
 
-      <!-- Lecturer fields -->
-      <template v-else-if="role === 'lecturer'">
+      <!-- Lecturer & Advisor fields -->
+      <template v-else>
         <input v-model="email" placeholder="Email" type="email" />
         <input v-model="password" type="password" placeholder="Password" />
       </template>
@@ -31,8 +31,14 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 
-// Detect role based on current path
-const role = ref(route.path.includes('lecturer') ? 'lecturer' : 'student')
+// Auto-detect role from route
+const role = ref(
+  route.path.includes('lecturer')
+    ? 'lecturer'
+    : route.path.includes('advisor')
+    ? 'advisor'
+    : 'student'
+)
 
 const matric = ref('')
 const pin = ref('')
@@ -42,10 +48,13 @@ const error = ref('')
 const loading = ref(false)
 
 const roleLabel = computed(() =>
-  role.value === 'lecturer' ? 'Lecturer' : 'Student'
+  role.value === 'lecturer'
+    ? 'Lecturer'
+    : role.value === 'advisor'
+    ? 'Advisor'
+    : 'Student'
 )
 
-// Auto-redirect if already logged in
 onMounted(() => {
   const key = role.value + 'Id'
   if (localStorage.getItem(key)) {
@@ -57,14 +66,19 @@ const login = async () => {
   error.value = ''
   loading.value = true
 
-  const url = role.value === 'lecturer' ? '/login-lecturer' : '/login-student'
+  const loginUrlMap = {
+    student: '/login-student',
+    lecturer: '/login-lecturer',
+    advisor: '/login-advisor'
+  }
+
   const payload =
-    role.value === 'lecturer'
-      ? { email: email.value, password: password.value }
-      : { matric: matric.value, pin: pin.value }
+    role.value === 'student'
+      ? { matric: matric.value, pin: pin.value }
+      : { email: email.value, password: password.value }
 
   try {
-    const res = await fetch(`http://localhost:8085${url}`, {
+    const res = await fetch(`http://localhost:8085${loginUrlMap[role.value]}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
