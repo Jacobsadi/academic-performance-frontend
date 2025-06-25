@@ -20,6 +20,8 @@
         <span class="separator">|</span>
         <router-link to="/student/what-if-tools" class="nav-link">What-If Tools</router-link>
         <span class="separator">|</span>
+        <router-link to="/student/request-remarks" class="nav-link">Request Remarks</router-link>
+        <span class="separator">|</span>
       </template>
       
       <template v-else-if="role === 'advisor'">
