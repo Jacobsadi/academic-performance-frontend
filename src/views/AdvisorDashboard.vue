@@ -16,7 +16,7 @@
           <p><strong>Courses:</strong></p>
           <ul>
             <li v-for="course in student.courses" :key="course.course_id">
-              {{ course.title }} - {{ course.mark }}%
+              {{ course.title }} - {{ course.total_mark }}%
             </li>
           </ul>
 
@@ -42,7 +42,17 @@ const fetchAdvisees = async () => {
   try {
     const res = await fetch(`http://localhost:8085/advisor/advisees?advisor_id=${advisorId}`)
     const data = await res.json()
-    advisees.value = data.map(a => ({ ...a, note: '' }))
+    // Fetch notes for each advisee
+    const adviseesWithNotes = await Promise.all(
+      data.map(async a => {
+        const noteRes = await fetch(
+          `http://localhost:8085/advisor/note?advisor_id=${advisorId}&student_id=${a.id}`
+        )
+        const noteData = await noteRes.json()
+        return { ...a, note: noteData.note || '' }
+      })
+    )
+    advisees.value = adviseesWithNotes
   } catch (e) {
     alert('Failed to load advisees.')
   }
