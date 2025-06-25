@@ -16,6 +16,8 @@
         <span class="separator">|</span>
         <router-link to="/student/view-rank" class="nav-link">View Rank</router-link>
         <span class="separator">|</span>
+        <router-link to="/student/view-average" class="nav-link">Class Average</router-link>
+        <span class="separator">|</span>
       </template>
       
       <template v-else-if="role === 'advisor'">
