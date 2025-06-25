@@ -3,13 +3,18 @@
     <div class="login-card">
       <h2>{{ roleLabel }} Login</h2>
 
-      <!-- Student fields -->
-      <template v-if="role === 'student'">
+      <!-- Admin Login -->
+      <template v-if="role === 'admin'">
+        <input v-model="email" placeholder="Email" type="email" />
+        <input v-model="password" type="password" placeholder="Password" />
+      </template>
+
+      <!-- Other roles (Student, Lecturer, Advisor) -->
+      <template v-else-if="role === 'student'">
         <input v-model="matric" placeholder="Matric Number" type="text" />
         <input v-model="pin" type="password" placeholder="Secure PIN" />
       </template>
 
-      <!-- Lecturer & Advisor fields -->
       <template v-else>
         <input v-model="email" placeholder="Email" type="email" />
         <input v-model="password" type="password" placeholder="Password" />
@@ -31,12 +36,13 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 
-// Auto-detect role from route
 const role = ref(
   route.path.includes('lecturer')
     ? 'lecturer'
     : route.path.includes('advisor')
     ? 'advisor'
+    : route.path.includes('admin')
+    ? 'admin'
     : 'student'
 )
 
@@ -47,13 +53,14 @@ const password = ref('')
 const error = ref('')
 const loading = ref(false)
 
-const roleLabel = computed(() =>
-  role.value === 'lecturer'
-    ? 'Lecturer'
-    : role.value === 'advisor'
-    ? 'Advisor'
-    : 'Student'
-)
+const roleLabel = computed(() => {
+  switch (role.value) {
+    case 'lecturer': return 'Lecturer'
+    case 'advisor': return 'Advisor'
+    case 'admin': return 'Admin'
+    default: return 'Student'
+  }
+})
 
 onMounted(() => {
   const key = role.value + 'Id'
@@ -69,7 +76,8 @@ const login = async () => {
   const loginUrlMap = {
     student: '/login-student',
     lecturer: '/login-lecturer',
-    advisor: '/login-advisor'
+    advisor: '/login-advisor',
+    admin: '/login-admin'
   }
 
   const payload =

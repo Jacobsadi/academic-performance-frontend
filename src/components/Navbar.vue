@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="navbar-title">
-      {{ role === 'student' ? 'Student Panel' : role === 'advisor' ? 'Advisor Panel' : 'Lecturer Panel' }}
+      {{ role === 'student' ? 'Student Panel' : role === 'advisor' ? 'Advisor Panel' : role === 'admin' ? 'Admin Panel' : 'Lecturer Panel' }}
     </div>
     <div class="navbar-links">
       <template v-if="role === 'lecturer'">
@@ -28,6 +28,12 @@
         <router-link to="/advisor/dashboard" class="nav-link">Dashboard</router-link>
         <span class="separator">|</span>
       </template>
+
+      <template v-else-if="role === 'admin'">
+        <router-link to="/admin/dashboard" class="nav-link">Dashboard</router-link>
+        <span class="separator">|</span>
+      </template>
+
       <a href="#" class="nav-link" @click.prevent="logout">Logout</a>
     </div>
   </nav>

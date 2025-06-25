@@ -7,6 +7,7 @@
         <router-link to="/lecturer" class="role-btn lecturer-btn">Lecturer Login</router-link>
         <router-link to="/student" class="role-btn student-btn">Student Login</router-link>
         <router-link to="/advisor" class="role-btn advisor-btn">Advisor Login</router-link>
+        <router-link to="/admin" class="role-btn admin-btn">Admin Login</router-link>
       </div>
     </div>
   </div>
@@ -69,7 +70,6 @@ h1 {
 .lecturer-btn {
   background: #3498db;
 }
-
 .lecturer-btn:hover {
   background: #217dbb;
 }
@@ -77,15 +77,21 @@ h1 {
 .student-btn {
   background: #8e44ad;
 }
-
 .student-btn:hover {
   background: #6c3483;
 }
+
 .advisor-btn {
   background: #035c16;
 }
-
 .advisor-btn:hover {
-  background: #035c16;
+  background: #02410f;
+}
+
+.admin-btn {
+  background: #e67e22;
+}
+.admin-btn:hover {
+  background: #ca6f1e;
 }
 </style>

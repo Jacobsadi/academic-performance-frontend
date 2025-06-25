@@ -10,6 +10,7 @@ import AdvisorDashboard from '../views/AdvisorDashboard.vue';
 import ViewMark from '../views/student/ViewMark.vue';
 import CompareMarks from '../views/student/CompareMarks.vue';
 import ViewRank from '../views/student/ViewRanks.vue';
+import AdminDashboard from '../views/admin/AdminDashboard.vue';
 import ViewAverageCmp from '../views/student/ViewAverageCmp.vue';
 import WhatIfTools from '../views/student/WhatIfTools.vue';
 import RequestRemarks from '../views/student/RequestRemarks.vue';
@@ -34,8 +35,14 @@ const routes = [
   { path: '/student/what-if-tools', component: WhatIfTools, meta: { requiresAuth: true, role: 'student' }},
   { path: '/student/request-remarks', component: RequestRemarks, meta: { requiresAuth: true, role: 'student' }},
 
+  { path: '/admin', component: LoginPage }, 
+  { path: '/admin/dashboard', component: AdminDashboard, meta: { requiresAuth: true, role: 'admin' } }, 
+  { path: '/admin/manage-users', name: 'ManageUsers', component: () => import('@/views/admin/ManageUsers.vue') }, 
+  { path: '/admin/assign-lecturer', component: () => import('@/views/admin/AssignLecturer.vue') },
+  { path: '/admin/view-marks', component: () => import('@/views/admin/ViewMarkUpdates.vue')
+}
 
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
@@ -56,7 +63,9 @@ router.beforeEach((to, from, next) => {
       next('/lecturer')
     } else if (role === 'advisor') {
       next('/advisor')
-    }
+    } else if (role === 'admin') {
+      next('/admin')
+    } 
   } else {
     next()
   }
