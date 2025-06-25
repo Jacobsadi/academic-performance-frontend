@@ -13,15 +13,25 @@
               <th>CA</th>
               <th>Final</th>
               <th>Total</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="course in courses" :key="course.course_id">
               <td>{{ course.code }}</td>
               <td>{{ course.title }}</td>
-              <td>{{ course.ca_score ?? 0 }}</td>
-              <td>{{ course.final_exam ?? 'N/A' }}</td>
-              <td>{{ course.total_score ?? 0 }}</td>
+              <td>{{ Number(course.ca_score ?? 0).toFixed(2) }}</td>
+              <td>
+                {{ course.final_exam !== undefined && course.final_exam !== null
+                  ? Number(course.final_exam).toFixed(2)
+                : 'N/A'
+                }}</td>
+              <td>{{ Number(course.total_score ?? 0).toFixed(2) }}</td>
+              <td>
+                <button class="view-marks-btn" @click="goToViewMarks(course.course_id)">
+                  View Marks
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -43,6 +53,10 @@ const studentName = ref('Student')
 const courses = ref([])
 const error = ref('')
 const loading = ref(true)
+
+const goToViewMarks = (courseId) => {
+  router.push({ path: '/student/view-marks', query: { courseId } })
+}
 
 onMounted(() => {
   // Get student ID and name from localStorage
@@ -150,5 +164,21 @@ const fetchCoursesAndMarks = async () => {
   color: #e74c3c;
   margin-top: -0.5rem;
   font-size: 14px;
+}
+
+.view-marks-btn {
+  background: #2980b9;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+  margin-left: 8px;
+}
+
+.view-marks-btn:hover {
+  background: #1c5d8c;
 }
 </style>

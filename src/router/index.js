@@ -7,6 +7,7 @@ import LecturerDashboard from '../views/LecturerDashboard.vue';
 import LoginPage from '../views/LoginPage.vue';
 import StudentDashboard from '../views/student/Dashboard.vue'
 import AdvisorDashboard from '../views/AdvisorDashboard.vue';
+import ViewMark from '../views/student/ViewMark.vue'
 
 const routes = [
   { path: '/', component: WelcomePage },
@@ -20,8 +21,8 @@ const routes = [
   { path: '/advisor', component: LoginPage},
 
   { path: '/student', component: LoginPage},
-  { path: '/student/dashboard', component: StudentDashboard, meta: { requiresAuth: true, role: 'student' }}
-  
+  { path: '/student/dashboard', component: StudentDashboard, meta: { requiresAuth: true, role: 'student' }},
+  { path: '/student/view-marks', component: ViewMark, meta: { requiresAuth: true, role: 'student' } }
 ];
 
 const router = createRouter({
