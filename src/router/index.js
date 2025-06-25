@@ -11,6 +11,7 @@ import ViewMark from '../views/student/ViewMark.vue';
 import CompareMarks from '../views/student/CompareMarks.vue';
 import ViewRank from '../views/student/ViewRanks.vue';
 import ViewAverageCmp from '../views/student/ViewAverageCmp.vue';
+import WhatIfTools from '../views/student/WhatIfTools.vue';
 
 const routes = [
   { path: '/', component: WelcomePage },
@@ -29,6 +30,7 @@ const routes = [
   { path: '/student/compare-marks', component: CompareMarks, meta: { requiresAuth: true, role: 'student' } },
   { path: '/student/view-rank', component: ViewRank, meta: { requiresAuth: true, role: 'student' } },
   { path: '/student/view-average', component: ViewAverageCmp, meta: { requiresAuth: true, role: 'student' }},
+  { path: '/student/what-if-tools', component: WhatIfTools, meta: { requiresAuth: true, role: 'student' }},
 
 
 ];

@@ -18,6 +18,8 @@
         <span class="separator">|</span>
         <router-link to="/student/view-average" class="nav-link">Class Average</router-link>
         <span class="separator">|</span>
+        <router-link to="/student/what-if-tools" class="nav-link">What-If Tools</router-link>
+        <span class="separator">|</span>
       </template>
       
       <template v-else-if="role === 'advisor'">
