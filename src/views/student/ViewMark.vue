@@ -30,9 +30,6 @@
         <div v-if="!loading && components.length" class="total-section">
         <strong>
             Total Component Score: {{ Number(totalScore).toFixed(2) }} / 70.00
-            <span style="margin-left:1em;">
-            ({{ ((Number(totalScore) / 70) * 100).toFixed(2) }}%)
-            </span>
         </strong>
         </div>
       </div>

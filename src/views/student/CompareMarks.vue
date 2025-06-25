@@ -57,10 +57,8 @@ const fetchComparisonData = async () => {
 
   const res = await fetch(`http://localhost:8085/student/${studentId}/compare-marks/${selectedCourseId.value}`)
   const data = await res.json()
-  chartData.value = data.map((d, i) => ({
-  ...d,
-  label: d.isSelf ? 'You' : `Student ${String.fromCharCode(65 + i)}` // A, B, C, ...
-}))
+  data.sort((a, b) => b.total - a.total)
+  chartData.value = data
 
   await nextTick()
 
