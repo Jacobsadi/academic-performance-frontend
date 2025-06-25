@@ -8,10 +8,13 @@
         <router-link to="/lecturer/dashboard" class="nav-link">Dashboard</router-link>
         <span class="separator">|</span>
       </template>
+
       <template v-else-if="role === 'student'">
         <router-link to="/student/dashboard" class="nav-link">Dashboard</router-link>
         <span class="separator">|</span>
         <router-link to="/student/compare-marks" class="nav-link">Compare Marks</router-link>
+        <span class="separator">|</span>
+        <router-link to="/student/view-rank" class="nav-link">View Rank</router-link>
         <span class="separator">|</span>
       </template>
       

@@ -23,7 +23,7 @@
               <td>{{ Number(course.ca_score ?? 0).toFixed(2) }}</td>
               <td>
                 {{ course.final_exam !== undefined && course.final_exam !== null
-                  ? Number(course.final_exam).toFixed(2)
+                  ? Number(course.final_exam * 0.3).toFixed(2) 
                 : 'N/A'
                 }}</td>
               <td>{{ Number(course.total_score ?? 0).toFixed(2) }}</td>
