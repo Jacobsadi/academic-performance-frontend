@@ -22,11 +22,15 @@
             <h3>View Mark Updates</h3>
             <p>Monitor latest updates to student marks</p>
           </router-link>
+
+          <router-link to="/admin/manage-enrollment" class="tool-card">
+            <h3>Manage Student Enrollment</h3>
+            <p>Enroll students to courses and manage records</p>
+          </router-link>
         </div>
       </div>
 
       <!-- Optional: Future section -->
-     
     </div>
   </div>
 </template>

@@ -39,8 +39,10 @@ const routes = [
   { path: '/admin/dashboard', component: AdminDashboard, meta: { requiresAuth: true, role: 'admin' } }, 
   { path: '/admin/manage-users', name: 'ManageUsers', component: () => import('@/views/admin/ManageUsers.vue') }, 
   { path: '/admin/assign-lecturer', component: () => import('@/views/admin/AssignLecturer.vue') },
-  { path: '/admin/view-marks', component: () => import('@/views/admin/ViewMarkUpdates.vue')
-}
+  { path: '/admin/view-marks', component: () => import('@/views/admin/ViewMarkUpdates.vue') },
+  { path: '/admin/manage-enrollment', name: 'ManageEnrollment', component: () => import('@/views/admin/ManageEnrollment.vue') }
+
+
 
 ]
 

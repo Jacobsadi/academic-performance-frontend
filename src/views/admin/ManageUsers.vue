@@ -47,31 +47,50 @@ const users = ref([])
 const router = useRouter()
 
 const fetchUsers = async () => {
-  const res = await fetch('http://localhost:8085/users')
-  users.value = await res.json()
+  try {
+    const res = await fetch('http://localhost:8085/users')
+    if (!res.ok) throw new Error('Failed to fetch users')
+    users.value = await res.json()
+  } catch (error) {
+    alert('Error loading users: ' + error.message)
+  }
 }
 
 const updateRole = async (user) => {
-  const res = await fetch(`http://localhost:8085/users/${user.id}/role`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role: user.role })
-  })
-
-  if (!res.ok) alert('Failed to update role')
+  try {
+    const res = await fetch(`http://localhost:8085/users/${user.id}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: user.role })
+    })
+    if (!res.ok) throw new Error('Failed to update role')
+  } catch (error) {
+    alert('Error updating role: ' + error.message)
+  }
 }
 
-const resetPassword = async (id) => {
-  const confirmReset = confirm('Reset this user password to default (password123)?')
-  if (!confirmReset) return
+const resetPassword = async (userId) => {
+  const confirmReset = confirm('Reset this user password to default (password123)?');
+  if (!confirmReset) return;
 
-  const res = await fetch(`http://localhost:8085/users/${id}/reset-password`, {
-    method: 'PUT'
-  })
+  try {
+    const res = await fetch(`http://localhost:8085/users/${userId}/reset-password`, {
+      method: 'PUT'
+    });
 
-  if (res.ok) alert('Password reset successfully!')
-  else alert('Failed to reset password.')
-}
+    const contentType = res.headers.get("content-type");
+    const data = contentType && contentType.includes("application/json")
+      ? await res.json()
+      : await res.text(); // fallback if not JSON
+
+    if (!res.ok) throw new Error(data.message || data || 'Unknown error');
+
+    alert(data.message || 'Password reset successfully!');
+  } catch (error) {
+    alert('Failed to reset password: ' + error.message);
+  }
+};
+
 
 const goBack = () => {
   router.back()
